@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <stdbool.h>
 
 typedef struct
 {
@@ -156,15 +157,17 @@ void aplicate_xor(pixel **xored_image, pixel **linearized_from_image_pixels, uns
 
 /*
     Purpose: here are all the used steps in order to encrypt the image
+    Infos:
+    - return value is used for error handling
 */
-void criptare(char *input_image_name, char *output_image_name, char *secret_key_file_name)
+int encrypt(char *input_image_name, char *output_image_name, char *secret_key_file_name)
 {
     FILE *secret_key_file_handle, *input_image_file_handle, *output_image_file_handle;
     secret_key_file_handle = fopen(secret_key_file_name, "r");
     if(secret_key_file_handle == NULL)
     {
         printf("Could not open/find the file with the secret key!\n");
-        return;
+        return -1;
     }
     unsigned int Generator_Seed = 0,Starting_Value = 0;
     fscanf(secret_key_file_handle, "%d", &Generator_Seed);
@@ -175,7 +178,7 @@ void criptare(char *input_image_name, char *output_image_name, char *secret_key_
     if(input_image_file_handle == NULL)
     {
         printf("The image which you wanted to encrypt could not be found!\n");
-        return;
+        return -1;
     }
 
     unsigned int image_size, image_width, image_height;
@@ -187,6 +190,11 @@ void criptare(char *input_image_name, char *output_image_name, char *secret_key_
     fread(&image_height, sizeof(unsigned int), 1, input_image_file_handle);
 
     output_image_file_handle = fopen(output_image_name, "wb+");
+    if (output_image_file_handle == NULL) 
+    {
+        printf("Output file could not be oppened.\n");
+        return -1;
+    }
     int j = 0;
     unsigned c;
     fseek(input_image_file_handle, 0, SEEK_SET);
@@ -229,17 +237,17 @@ void criptare(char *input_image_name, char *output_image_name, char *secret_key_
         }
         fseek(output_image_file_handle, padding, SEEK_CUR);
     }
-    printf("The image was succesfully encrypted.\n");
 	free(ciphered_image);
 
     fclose(input_image_file_handle);
     fclose(output_image_file_handle);
+    return 1;
 }
 
 /*
     Purpose: uses the functions needed to decrypt an image
 */
-void decrypt(char *encrypted_image_name, char *decrypted_image_name, char *secret_key_file_name)
+int decrypt(char *encrypted_image_name, char *decrypted_image_name, char *secret_key_file_name)
 {
     FILE *input_image_file_handle, *output_image_file_handle, *secret_key_file_handle;
     input_image_file_handle = fopen(encrypted_image_name, "rb+");
@@ -249,13 +257,13 @@ void decrypt(char *encrypted_image_name, char *decrypted_image_name, char *secre
     if(input_image_file_handle == NULL)
     {
         printf("The given image was not found!\n");
-        return;
+        return -1;
     }
 
     if(secret_key_file_handle == NULL)
     {
         printf("Error at file open!\nCheck if you correctly spelled its name, or if it is present in the same directory as the executable file.");
-        return;
+        return -1;
     }
 
     unsigned int Generator_Seed = 0, Starting_Value = 0;
@@ -317,19 +325,27 @@ void decrypt(char *encrypted_image_name, char *decrypted_image_name, char *secre
         }
         fseek(output_image_file_handle, padding, SEEK_CUR);
     }
-    printf("The image was succesfully decrypted.\n");
 	free(permuted_decoded_image);
 
     fclose(input_image_file_handle);
     fclose(output_image_file_handle);
+    return 1;
 }
 
-void chi_patrat(char *image_name)
+int chi_squared_test(char *image_name)
 {
 	unsigned int image_size, image_width, image_height, f_bar, i = 0, j = 0, *pixel1, *pixel2, *pixel3;
     double nr1 = 0, nr2 = 0, nr3 = 0;
+
     FILE *file_handle;
     file_handle = fopen(image_name,"rb+");
+    
+    if (file_handle == NULL)
+    {
+        printf("Image file count not be oppened for the chi_squared test.\n");
+        return -1;
+    }
+    
     fseek(file_handle, 2, SEEK_SET);
     fread(&image_size, sizeof(unsigned int), 1, file_handle);
     fseek(file_handle, 18, SEEK_SET);
@@ -375,36 +391,95 @@ void chi_patrat(char *image_name)
     printf("Chi_patrat results:\n%.2f %.2f %.2f\n", nr3, nr2, nr1);
 
     fclose(file_handle);
+    return 1;
 }
 
 int main()
 {
-    char input_image_name[101];
-    char encrypted_image_name[101];
-    char secret_key_file_name[101];
+    int user_choice = 0;
+    bool EXIT_STATUS_FLAG = false;
 
-    printf("Name of the image that you want to encrypt(perhaps peppers.bmp): ");
-    fgets(input_image_name, 101, stdin);
-    input_image_name[strlen(input_image_name)-1] = '\0';
+    while(!EXIT_STATUS_FLAG)
+    {
+        printf("Operation id(1 encryption, 2 decryption, 3 chi_squared test, 4 exit):");
+        
+        char input_image_name[101];
+        char encrypted_image_name[101];
+        char secret_key_file_name[101];
+        char decrypted_image_name[101] = "decodedpeppers.bmp";
 
-    printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
-    fgets(encrypted_image_name, 101, stdin);
-    encrypted_image_name[strlen(encrypted_image_name)-1] = '\0';
+        int operation_result = scanf("%d", &user_choice);
+        if(operation_result == EOF)
+        {
+            printf("The program needs a valid option!\n");
+            return -1;
+        }
+        if (operation_result == 0)
+        {
+            while(fgetc(stdin) != '\n');
+            printf("The program needs a valid option!\n");
+            return -1;
+        }
+        getchar();
 
-    printf("\nName of the file which contains the secret key(perhaps secret_key.txt): ");
-    fgets(secret_key_file_name, 101, stdin);
-    secret_key_file_name[strlen(secret_key_file_name)-1] = '\0';
+        switch(user_choice)
+        {
+            case 1:
+                printf("Name of the image that you want to encrypt(perhaps peppers.bmp): ");
+                fgets(input_image_name, 101, stdin);
+                input_image_name[strlen(input_image_name)-1] = '\0';
 
-    criptare(input_image_name, encrypted_image_name, secret_key_file_name);
+                printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
+                fgets(encrypted_image_name, 101, stdin);
+                encrypted_image_name[strlen(encrypted_image_name)-1] = '\0';
 
-    printf("The name of the decrypted image is 'decodedpeppers.bmp'\n");
-    char nume_imagine_decodificata[101] = "decodedpeppers.bmp";
-    decrypt(encrypted_image_name, nume_imagine_decodificata, secret_key_file_name);
+                printf("\nName of the file which contains the secret key(perhaps secret_key.txt): ");
+                fgets(secret_key_file_name, 101, stdin);
+                secret_key_file_name[strlen(secret_key_file_name)-1] = '\0';
 
-    chi_patrat(input_image_name);
-    chi_patrat(encrypted_image_name);
-    printf("\n");
-	getchar();
+                int encryption_result = encrypt(input_image_name, encrypted_image_name, secret_key_file_name);
+                if (encryption_result == -1) return -1;
+                if (encryption_result == 1) printf("The image was succesfully encrypted.\n");
+
+                break;
+            case 2:
+                printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
+                fgets(encrypted_image_name, 101, stdin);
+                encrypted_image_name[strlen(encrypted_image_name)-1] = '\0';
+                
+                printf("\nName of the file which contains the secret key(perhaps secret_key.txt): ");
+                fgets(secret_key_file_name, 101, stdin);
+                secret_key_file_name[strlen(secret_key_file_name)-1] = '\0';
+
+                printf("The name of the decrypted image is 'decodedpeppers.bmp'\n");
+                int decryption_result = decrypt(encrypted_image_name, decrypted_image_name, secret_key_file_name);
+                if (decryption_result == -1) return -1;
+                if (decryption_result == 1) printf("The image was succesfully decrypted.\n");
+
+                break;
+            case 3:
+                printf("Name of the image that you want to encrypt(perhaps peppers.bmp): ");
+                fgets(input_image_name, 101, stdin);
+                input_image_name[strlen(input_image_name)-1] = '\0';
+
+                printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
+                fgets(encrypted_image_name, 101, stdin);
+                encrypted_image_name[strlen(encrypted_image_name)-1] = '\0';
+
+                int input_image_result = chi_squared_test(input_image_name);
+                int encrypted_image_result = chi_squared_test(encrypted_image_name);
+                if(input_image_result == -1 || encrypted_image_result == -1) return -1;
+                if(input_image_result == 1 && encrypted_image_result == 1) printf("Chi-squared tests were succesfully done!\n");
+
+                break;
+            case 4:
+                EXIT_STATUS_FLAG = true;
+                printf("Program closed succesfully!\nBye!\n");
+                break;
+            default:
+                printf("The program needs a valid option!(1-encrypt, 2-decrypt, 3-chi_squared_test\n");
+        }
+    }
 	
     return 0;
 }
