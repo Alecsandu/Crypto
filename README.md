@@ -3,8 +3,7 @@
 Encrypt and decrypt your photos using a private key, to be sure that no one sees your peppers
 ## Features
 The program from [crypto.c](crypto.c) has the following features:
-- encrypt an image
-- decrypt an image
+- encrypt and decrypt an image, using a secret key(composed of two values)
 - show the results of the CHI-SQUARED test of the plain image and encrypted image
 - show instructions of how to use the program
 ## Results
