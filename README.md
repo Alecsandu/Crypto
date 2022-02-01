@@ -1,4 +1,12 @@
 # CryptographyApp
-Encrypt and decrypt your photos to be sure that no one sees your peppers
-![Alt text](peppers.bmp?raw=true "Title")
-![Alt text](encodedpeppers.bmp?raw=true "Title")
+## Idea
+Encrypt and decrypt your photos using a private key, to be sure that no one sees your peppers
+## Features
+The crypto program has the following features:
+- encrypt an image
+- decrypt an image
+- show the results of the CHI-SQUARED test of the plain image and encrypted image
+- show instructions of how to use the program
+## Results
+[Plain image](peppers.bmp?raw=true "Title")
+[Encrypted image](encodedpeppers.bmp?raw=true "Title")
