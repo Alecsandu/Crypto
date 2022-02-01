@@ -1,4 +1,4 @@
-# CryptographyApp
+# Crypto - CryptographyApp
 ## Idea
 Encrypt and decrypt your photos using a private key, to be sure that no one sees your peppers
 ## Features
