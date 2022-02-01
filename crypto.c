@@ -12,8 +12,8 @@ typedef struct
 /*
     Purpose: this function generates random numbers using the xorshift32 generator and stores them in an array
     Informations: 
-	- seed is used to initialize the xorshift32 generator, also it is the first number from secret_key.txt
-	- elements_array contains the generated values (2*image_width*image_height numbers)
+    - seed is used to initialize the xorshift32 generator, also it is the first number from secret_key.txt
+    - elements_array contains the generated values (2*image_width*image_height numbers)
     - the elements are sent back by using the elements_array variable
     - https://en.wikipedia.org/wiki/Xorshift
 */
@@ -130,7 +130,7 @@ void final_image_encryption(pixel **final_image, pixel **linearized_form, unsign
 }
 
 /*
-	Purpose: use the generated data to inverse the substitudion made at encryption
+    Purpose: use the generated data to inverse the substitudion made at encryption
 */
 void aplicate_xor(pixel **xored_image, pixel **linearized_from_image_pixels, unsigned int *sir_xorshift32_decr, unsigned int image_width,
                   unsigned image_height, unsigned int Secret_Value)
@@ -278,7 +278,7 @@ int decrypt(char *encrypted_image_name, char *decrypted_image_name, char *secret
     fread(&image_width,sizeof(unsigned int), 1, input_image_file_handle);
     fread(&image_height,sizeof(unsigned int), 1, input_image_file_handle);
 
-    //	COPY THE ENCRYPTED IMAGE HEADER
+    // Copy the encrypted image header into the new one
     int j = 0;
     unsigned c;
     fseek(input_image_file_handle,0,SEEK_SET);
