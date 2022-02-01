@@ -8,5 +8,15 @@ The crypto program has the following features:
 - show the results of the CHI-SQUARED test of the plain image and encrypted image
 - show instructions of how to use the program
 ## Results
-[Plain image](peppers.bmp?raw=true "Title")
-[Encrypted image](encodedpeppers.bmp?raw=true "Title")
+<p align="center">
+  <img src="https://github.com/Alecsandu/CryptographyApp/blob/main/peppers.bmp">
+  <br/>
+  Plain image
+  <hr />
+</p>
+
+<p align="center">
+  <img src="https://github.com/Alecsandu/CryptographyApp/blob/main/encodedpeppers.bmp">
+  <br />
+  Encrypted image
+</p>
