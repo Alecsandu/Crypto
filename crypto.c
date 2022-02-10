@@ -6,12 +6,12 @@
 
 typedef struct
 {
-    unsigned char pR,pG,pB;
-}pixel;
+    unsigned char pR, pG, pB;
+} pixel;
 
 /*
     Purpose: this function generates random numbers using the xorshift32 generator and stores them in an array
-    Informations: 
+    Informations:
     - seed is used to initialize the xorshift32 generator, also it is the first number from secret_key.txt
     - elements_array contains the generated values (2*image_width*image_height numbers)
     - the elements are sent back by using the elements_array variable
@@ -21,11 +21,11 @@ void xorshift32(unsigned int **elements_array, unsigned int image_width, unsigne
 {
     unsigned int aux = seed;
     *elements_array = malloc(sizeof(unsigned int) * 2 * image_width * image_height);
-    for(unsigned int i = 0; i < 2 * image_width * image_height; i++)
+    for (unsigned int i = 0; i < 2 * image_width * image_height; i++)
     {
-        aux = aux^aux << 13;
-        aux = aux^aux >> 17;
-        aux = aux^aux << 5;
+        aux = aux ^ aux << 13;
+        aux = aux ^ aux >> 17;
+        aux = aux ^ aux << 5;
         (*elements_array)[i] = aux;
     }
 }
@@ -37,17 +37,17 @@ void xorshift32(unsigned int **elements_array, unsigned int image_width, unsigne
     - https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 */
 void durstenfeld_permutation(unsigned int **permutation, unsigned int image_width, unsigned int image_height,
-                                unsigned int *xorshift32_generated_array)
+                             unsigned int *xorshift32_generated_array)
 {
-    *permutation = (unsigned int*)malloc(sizeof(unsigned int) * image_width * image_height);
-    for(unsigned int i = 0; i < image_width * image_height; i++)
-	{
-        (*permutation)[i] = i;
-	}
-
-    for(unsigned int i = image_width * image_height - 1; i >= 1; i--)
+    *permutation = (unsigned int *)malloc(sizeof(unsigned int) * image_width * image_height);
+    for (unsigned int i = 0; i < image_width * image_height; i++)
     {
-        unsigned int poz = xorshift32_generated_array[i]%(i+1);
+        (*permutation)[i] = i;
+    }
+
+    for (unsigned int i = image_width * image_height - 1; i >= 1; i--)
+    {
+        unsigned int poz = xorshift32_generated_array[i] % (i + 1);
         unsigned int aux = (*permutation)[poz];
         (*permutation)[poz] = (*permutation)[i];
         (*permutation)[i] = aux;
@@ -62,7 +62,7 @@ void durstenfeld_permutation(unsigned int **permutation, unsigned int image_widt
 void inverse_permutation(unsigned int **final_permutation, unsigned int *initial_permutation, unsigned int image_width, unsigned int image_height)
 {
     *final_permutation = (unsigned int *)malloc(sizeof(unsigned int) * image_width * image_height);
-    for(unsigned int i = 0; i < image_width * image_height; i++)
+    for (unsigned int i = 0; i < image_width * image_height; i++)
         (*final_permutation)[initial_permutation[i]] = i;
 }
 
@@ -76,7 +76,7 @@ void image_linearization(pixel **image_pixels, unsigned int image_width, unsigne
     unsigned char pixel_rgb[3];
     *image_pixels = (pixel *)malloc(sizeof(pixel) * image_width * image_height);
     fseek(image_file_handle, 54, SEEK_SET);
-    for(unsigned int i = 0; i < image_width * image_height; i++)
+    for (unsigned int i = 0; i < image_width * image_height; i++)
     {
         fread(pixel_rgb, 3, 1, image_file_handle);
         (*image_pixels)[i].pR = pixel_rgb[0];
@@ -91,11 +91,11 @@ void image_linearization(pixel **image_pixels, unsigned int image_width, unsigne
     - the image must be linearized otherwise it will give wrong results
 */
 void permute_image_pixels(pixel **linearized_and_permuted_form, pixel **linearized_form, unsigned int *permutations,
-                                unsigned int image_width, unsigned int image_height)
+                          unsigned int image_width, unsigned int image_height)
 {
     *linearized_and_permuted_form = (pixel *)malloc(sizeof(pixel) * image_width * image_height);
-    for(unsigned int i = 0; i < image_width * image_height; i++)
-        (*linearized_and_permuted_form)[*(permutations+i)] = (*linearized_form)[i];
+    for (unsigned int i = 0; i < image_width * image_height; i++)
+        (*linearized_and_permuted_form)[*(permutations + i)] = (*linearized_form)[i];
 }
 
 /*
@@ -107,25 +107,25 @@ void permute_image_pixels(pixel **linearized_and_permuted_form, pixel **lineariz
         because it might not have a strong encryption
 */
 void final_image_encryption(pixel **final_image, pixel **linearized_form, unsigned int *xorshift32_array, unsigned int image_width,
-                             unsigned int image_height, unsigned int Secret_Value)
+                            unsigned int image_height, unsigned int Secret_Value)
 {
     *final_image = (pixel *)malloc(sizeof(pixel) * image_width * image_height);
 
-    int octet_2 = (Secret_Value>>16)&0xff;
-    int octet_1 = (Secret_Value>>8)&0xff;
-    int octet_0 = Secret_Value&0xff;
+    int octet_2 = (Secret_Value >> 16) & 0xff;
+    int octet_1 = (Secret_Value >> 8) & 0xff;
+    int octet_0 = Secret_Value & 0xff;
 
     unsigned int i = 0, j = image_width * image_height;
-    (*final_image)[i].pR = octet_0^(*linearized_form)[i].pR^(*(xorshift32_array+j));
-    (*final_image)[i].pG = octet_1^(*linearized_form)[i].pG^(*(xorshift32_array+j));
-    (*final_image)[i].pB = octet_2^(*linearized_form)[i].pB^(*(xorshift32_array+j));
-    
-    for(i = 1; i < image_width * image_height; i++)
+    (*final_image)[i].pR = octet_0 ^ (*linearized_form)[i].pR ^ (*(xorshift32_array + j));
+    (*final_image)[i].pG = octet_1 ^ (*linearized_form)[i].pG ^ (*(xorshift32_array + j));
+    (*final_image)[i].pB = octet_2 ^ (*linearized_form)[i].pB ^ (*(xorshift32_array + j));
+
+    for (i = 1; i < image_width * image_height; i++)
     {
         j++;
-        (*final_image)[i].pR = (*final_image)[i-1].pR ^ (*linearized_form)[i].pR ^ (*(xorshift32_array+j));
-        (*final_image)[i].pG = (*final_image)[i-1].pG ^ (*linearized_form)[i].pG ^ (*(xorshift32_array+j));
-        (*final_image)[i].pB = (*final_image)[i-1].pB ^ (*linearized_form)[i].pB ^ (*(xorshift32_array+j));
+        (*final_image)[i].pR = (*final_image)[i - 1].pR ^ (*linearized_form)[i].pR ^ (*(xorshift32_array + j));
+        (*final_image)[i].pG = (*final_image)[i - 1].pG ^ (*linearized_form)[i].pG ^ (*(xorshift32_array + j));
+        (*final_image)[i].pB = (*final_image)[i - 1].pB ^ (*linearized_form)[i].pB ^ (*(xorshift32_array + j));
     }
 }
 
@@ -137,21 +137,21 @@ void aplicate_xor(pixel **xored_image, pixel **linearized_from_image_pixels, uns
 {
     *xored_image = (pixel *)malloc(sizeof(pixel) * image_width * image_height);
 
-    int b = (Secret_Value>>16)&0xff;      // third octet 16-23
-    int g = (Secret_Value>>8)&0xff;       // second octet 8-15
-    int r = Secret_Value&0xff;            // first octet 0-7
+    int b = (Secret_Value >> 16) & 0xff; // third octet 16-23
+    int g = (Secret_Value >> 8) & 0xff;  // second octet 8-15
+    int r = Secret_Value & 0xff;         // first octet 0-7
 
     unsigned int i = 0, j = image_width * image_height;
-    (*xored_image)[i].pR = r ^ (*linearized_from_image_pixels)[i].pR ^ (*(sir_xorshift32_decr+j));
-    (*xored_image)[i].pG = g ^ (*linearized_from_image_pixels)[i].pG ^ (*(sir_xorshift32_decr+j));
-    (*xored_image)[i].pB = b ^ (*linearized_from_image_pixels)[i].pB ^ (*(sir_xorshift32_decr+j));
+    (*xored_image)[i].pR = r ^ (*linearized_from_image_pixels)[i].pR ^ (*(sir_xorshift32_decr + j));
+    (*xored_image)[i].pG = g ^ (*linearized_from_image_pixels)[i].pG ^ (*(sir_xorshift32_decr + j));
+    (*xored_image)[i].pB = b ^ (*linearized_from_image_pixels)[i].pB ^ (*(sir_xorshift32_decr + j));
 
-    for(i = 1; i < image_width * image_height; i++)
+    for (i = 1; i < image_width * image_height; i++)
     {
         j++;
-        (*xored_image)[i].pR = (*linearized_from_image_pixels)[i-1].pR ^ (*linearized_from_image_pixels)[i].pR ^ (*(sir_xorshift32_decr+j));
-        (*xored_image)[i].pG = (*linearized_from_image_pixels)[i-1].pG ^ (*linearized_from_image_pixels)[i].pG ^ (*(sir_xorshift32_decr+j));
-        (*xored_image)[i].pB = (*linearized_from_image_pixels)[i-1].pB ^ (*linearized_from_image_pixels)[i].pB ^ (*(sir_xorshift32_decr+j));
+        (*xored_image)[i].pR = (*linearized_from_image_pixels)[i - 1].pR ^ (*linearized_from_image_pixels)[i].pR ^ (*(sir_xorshift32_decr + j));
+        (*xored_image)[i].pG = (*linearized_from_image_pixels)[i - 1].pG ^ (*linearized_from_image_pixels)[i].pG ^ (*(sir_xorshift32_decr + j));
+        (*xored_image)[i].pB = (*linearized_from_image_pixels)[i - 1].pB ^ (*linearized_from_image_pixels)[i].pB ^ (*(sir_xorshift32_decr + j));
     }
 }
 
@@ -164,18 +164,18 @@ int encrypt(char *input_image_name, char *output_image_name, char *secret_key_fi
 {
     FILE *secret_key_file_handle, *input_image_file_handle, *output_image_file_handle;
     secret_key_file_handle = fopen(secret_key_file_name, "r");
-    if(secret_key_file_handle == NULL)
+    if (secret_key_file_handle == NULL)
     {
         printf("Could not open/find the file with the secret key!\n");
         return -1;
     }
-    unsigned int Generator_Seed = 0,Starting_Value = 0;
+    unsigned int Generator_Seed = 0, Starting_Value = 0;
     fscanf(secret_key_file_handle, "%d", &Generator_Seed);
     fscanf(secret_key_file_handle, "%d", &Starting_Value);
     fclose(secret_key_file_handle);
 
     input_image_file_handle = fopen(input_image_name, "rb+");
-    if(input_image_file_handle == NULL)
+    if (input_image_file_handle == NULL)
     {
         printf("The image which you wanted to encrypt could not be found!\n");
         return -1;
@@ -190,7 +190,7 @@ int encrypt(char *input_image_name, char *output_image_name, char *secret_key_fi
     fread(&image_height, sizeof(unsigned int), 1, input_image_file_handle);
 
     output_image_file_handle = fopen(output_image_name, "wb+");
-    if (output_image_file_handle == NULL) 
+    if (output_image_file_handle == NULL)
     {
         printf("Output file could not be oppened.\n");
         return -1;
@@ -198,7 +198,7 @@ int encrypt(char *input_image_name, char *output_image_name, char *secret_key_fi
     int j = 0;
     unsigned c;
     fseek(input_image_file_handle, 0, SEEK_SET);
-    while(fread(&c, 1, 1, input_image_file_handle)==1 && j<54)
+    while (fread(&c, 1, 1, input_image_file_handle) == 1 && j < 54)
     {
         j++;
         fwrite(&c, 1, 1, output_image_file_handle);
@@ -215,29 +215,29 @@ int encrypt(char *input_image_name, char *output_image_name, char *secret_key_fi
 
     pixel *linearized_and_permuted_form;
     permute_image_pixels(&linearized_and_permuted_form, &liearized_form, permutation, image_width, image_height);
-	free(permutation);
-	free(liearized_form);
+    free(permutation);
+    free(liearized_form);
 
     pixel *ciphered_image;
     final_image_encryption(&ciphered_image, &linearized_and_permuted_form, xorshift32_generated_values_array, image_width, image_height, Starting_Value);
-	free(xorshift32_generated_values_array);
-	free(linearized_and_permuted_form);
+    free(xorshift32_generated_values_array);
+    free(linearized_and_permuted_form);
 
     int padding = 0;
-    if(image_width % 4 != 0)
+    if (image_width % 4 != 0)
     {
         padding = 4 - (3 * image_width) % 4;
     }
 
-    for(unsigned int i = 0; i < image_height; i++)
+    for (unsigned int i = 0; i < image_height; i++)
     {
-        for(unsigned int j = 0; j < image_width; j++)
+        for (unsigned int j = 0; j < image_width; j++)
         {
-            fwrite(ciphered_image + (image_height*i + j), 3, 1, output_image_file_handle);
+            fwrite(ciphered_image + (image_height * i + j), 3, 1, output_image_file_handle);
         }
         fseek(output_image_file_handle, padding, SEEK_CUR);
     }
-	free(ciphered_image);
+    free(ciphered_image);
 
     fclose(input_image_file_handle);
     fclose(output_image_file_handle);
@@ -254,35 +254,35 @@ int decrypt(char *encrypted_image_name, char *decrypted_image_name, char *secret
     output_image_file_handle = fopen(decrypted_image_name, "wb+");
     secret_key_file_handle = fopen(secret_key_file_name, "r");
 
-    if(input_image_file_handle == NULL)
+    if (input_image_file_handle == NULL)
     {
         printf("The given image was not found!\n");
         return -1;
     }
 
-    if(secret_key_file_handle == NULL)
+    if (secret_key_file_handle == NULL)
     {
         printf("Error at file open!\nCheck if you correctly spelled its name, or if it is present in the same directory as the executable file.");
         return -1;
     }
 
     unsigned int Generator_Seed = 0, Starting_Value = 0;
-    fscanf(secret_key_file_handle,"%d",&Generator_Seed);
-    fscanf(secret_key_file_handle,"%d",&Starting_Value);
+    fscanf(secret_key_file_handle, "%d", &Generator_Seed);
+    fscanf(secret_key_file_handle, "%d", &Starting_Value);
     fclose(secret_key_file_handle);
 
     unsigned int image_size = 0, image_width = 0, image_height = 0;
     fseek(input_image_file_handle, 2, SEEK_SET);
     fread(&image_size, sizeof(unsigned int), 1, input_image_file_handle);
     fseek(input_image_file_handle, 18, SEEK_SET);
-    fread(&image_width,sizeof(unsigned int), 1, input_image_file_handle);
-    fread(&image_height,sizeof(unsigned int), 1, input_image_file_handle);
+    fread(&image_width, sizeof(unsigned int), 1, input_image_file_handle);
+    fread(&image_height, sizeof(unsigned int), 1, input_image_file_handle);
 
     // Copy the encrypted image header into the new one
     int j = 0;
     unsigned c;
-    fseek(input_image_file_handle,0,SEEK_SET);
-    while(fread(&c, 1, 1, input_image_file_handle) == 1 && j < 54)
+    fseek(input_image_file_handle, 0, SEEK_SET);
+    while (fread(&c, 1, 1, input_image_file_handle) == 1 && j < 54)
     {
         j++;
         fwrite(&c, 1, 1, output_image_file_handle);
@@ -296,36 +296,36 @@ int decrypt(char *encrypted_image_name, char *decrypted_image_name, char *secret
 
     unsigned int *final_permutation;
     inverse_permutation(&final_permutation, durstenfeld_permutation_elements, image_width, image_height);
-	free(durstenfeld_permutation_elements);
+    free(durstenfeld_permutation_elements);
 
     pixel *linearized_encrypted_image_pixels;
     image_linearization(&linearized_encrypted_image_pixels, image_width, image_height, input_image_file_handle);
 
     pixel *decoded_image;
     aplicate_xor(&decoded_image, &linearized_encrypted_image_pixels, xorshift32_generated_values_array, image_width, image_height, Starting_Value);
-	free(xorshift32_generated_values_array);
-	free(linearized_encrypted_image_pixels);
+    free(xorshift32_generated_values_array);
+    free(linearized_encrypted_image_pixels);
 
     pixel *permuted_decoded_image;
     permute_image_pixels(&permuted_decoded_image, &decoded_image, final_permutation, image_width, image_height);
-	free(final_permutation);
-	free(decoded_image);
+    free(final_permutation);
+    free(decoded_image);
 
     int padding = 0;
-    if(image_width % 4 != 0)
-	{
+    if (image_width % 4 != 0)
+    {
         padding = 4 - (3 * image_width) % 4;
     }
-	
-    for(unsigned int i = 0; i < image_height; i++)
+
+    for (unsigned int i = 0; i < image_height; i++)
     {
-        for(unsigned int j = 0; j < image_width; j++)
+        for (unsigned int j = 0; j < image_width; j++)
         {
-            fwrite(permuted_decoded_image + (image_width*i + j), 3, 1, output_image_file_handle);
+            fwrite(permuted_decoded_image + (image_width * i + j), 3, 1, output_image_file_handle);
         }
         fseek(output_image_file_handle, padding, SEEK_CUR);
     }
-	free(permuted_decoded_image);
+    free(permuted_decoded_image);
 
     fclose(input_image_file_handle);
     fclose(output_image_file_handle);
@@ -334,59 +334,63 @@ int decrypt(char *encrypted_image_name, char *decrypted_image_name, char *secret
 
 int chi_squared_test(char *image_name)
 {
-	unsigned int image_size, image_width, image_height, f_bar, i = 0, j = 0, *pixel1, *pixel2, *pixel3;
+    unsigned int image_size, image_width, image_height, f_bar, i = 0, j = 0, *pixel1, *pixel2, *pixel3;
     double nr1 = 0, nr2 = 0, nr3 = 0;
 
     FILE *file_handle;
-    file_handle = fopen(image_name,"rb+");
-    
+    file_handle = fopen(image_name, "rb+");
+
     if (file_handle == NULL)
     {
         printf("Image file count not be oppened for the chi_squared test.\n");
         return -1;
     }
-    
+
     fseek(file_handle, 2, SEEK_SET);
     fread(&image_size, sizeof(unsigned int), 1, file_handle);
     fseek(file_handle, 18, SEEK_SET);
     fread(&image_width, sizeof(unsigned int), 1, file_handle);
     fread(&image_height, sizeof(unsigned int), 1, file_handle);
 
-    pixel1 = (unsigned int *)malloc(sizeof(unsigned int)*256);
-    pixel2 = (unsigned int *)malloc(sizeof(unsigned int)*256);
-    pixel3 = (unsigned int *)malloc(sizeof(unsigned int)*256);
+    pixel1 = (unsigned int *)malloc(sizeof(unsigned int) * 256);
+    pixel2 = (unsigned int *)malloc(sizeof(unsigned int) * 256);
+    pixel3 = (unsigned int *)malloc(sizeof(unsigned int) * 256);
 
-    for(i = 0; i < 256; i++)
+    for (i = 0; i < 256; i++)
     {
-        *(pixel1+i) = 0;
-        *(pixel2+i) = 0;
-        *(pixel3+i) = 0;
+        *(pixel1 + i) = 0;
+        *(pixel2 + i) = 0;
+        *(pixel3 + i) = 0;
     }
-	
+
     fseek(file_handle, 0, SEEK_SET);
     pixel *imagine_liniarizata;
     image_linearization(&imagine_liniarizata, image_width, image_height, file_handle);
-    f_bar = (image_height*image_width) / 256;
+    f_bar = (image_height * image_width) / 256;
 
-    for(j = 0; j < 256; j++)
+    for (j = 0; j < 256; j++)
     {
-        for(i = 0; i < image_height * image_width; i++)
+        for (i = 0; i < image_height * image_width; i++)
         {
-            if(((*(imagine_liniarizata + i)).pR) == j)
-                (*(pixel1+j)) = (*(pixel1+j)) + 1;
-            if(((*(imagine_liniarizata + i)).pG) == j)
-                (*(pixel2+j)) = (*(pixel2+j)) + 1;
-            if(((*(imagine_liniarizata + i)).pB) == j)
-                (*(pixel3+j)) = (*(pixel3+j)) + 1;
+            if (((*(imagine_liniarizata + i)).pR) == j)
+                (*(pixel1 + j)) = (*(pixel1 + j)) + 1;
+            if (((*(imagine_liniarizata + i)).pG) == j)
+                (*(pixel2 + j)) = (*(pixel2 + j)) + 1;
+            if (((*(imagine_liniarizata + i)).pB) == j)
+                (*(pixel3 + j)) = (*(pixel3 + j)) + 1;
         }
     }
 
-    for(i = 0; i < 256; i++)
+    for (i = 0; i < 256; i++)
     {
-        nr1 += (double)(((*(pixel1+i))-f_bar) * ((*(pixel1+i))-f_bar)) / f_bar;
-        nr2 += (double)(((*(pixel2+i))-f_bar) * ((*(pixel2+i))-f_bar)) / f_bar;
-        nr3 += (double)(((*(pixel3+i))-f_bar) * ((*(pixel3+i))-f_bar)) / f_bar;
+        nr1 += (double)(((*(pixel1 + i)) - f_bar) * ((*(pixel1 + i)) - f_bar)) / f_bar;
+        nr2 += (double)(((*(pixel2 + i)) - f_bar) * ((*(pixel2 + i)) - f_bar)) / f_bar;
+        nr3 += (double)(((*(pixel3 + i)) - f_bar) * ((*(pixel3 + i)) - f_bar)) / f_bar;
     }
+
+    free(pixel3);
+    free(pixel2);
+    free(pixel1);
 
     printf("Chi_patrat results:\n%.2f %.2f %.2f\n", nr3, nr2, nr1);
 
@@ -399,87 +403,94 @@ int main()
     int user_choice = 0;
     bool EXIT_STATUS_FLAG = false;
 
-    while(!EXIT_STATUS_FLAG)
+    while (!EXIT_STATUS_FLAG)
     {
         printf("Operation id(1 encryption, 2 decryption, 3 chi_squared test, 4 exit):");
-        
+
         char input_image_name[101];
         char encrypted_image_name[101];
         char secret_key_file_name[101];
         char decrypted_image_name[101] = "decodedpeppers.bmp";
 
         int operation_result = scanf("%d", &user_choice);
-        if(operation_result == EOF)
+        if (operation_result == EOF)
         {
             printf("The program needs a valid option!\n");
-            return -1;
+            continue;
         }
         if (operation_result == 0)
         {
-            while(fgetc(stdin) != '\n');
+            while (fgetc(stdin) != '\n')
+                ;
             printf("The program needs a valid option!\n");
-            return -1;
+            continue;
         }
         getchar();
 
-        switch(user_choice)
+        switch (user_choice)
         {
-            case 1:
-                printf("Name of the image that you want to encrypt(perhaps peppers.bmp): ");
-                fgets(input_image_name, 101, stdin);
-                input_image_name[strlen(input_image_name)-1] = '\0';
+        case 1:
+            printf("Name of the image that you want to encrypt(perhaps peppers.bmp): ");
+            fgets(input_image_name, 101, stdin);
+            input_image_name[strlen(input_image_name) - 1] = '\0';
 
-                printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
-                fgets(encrypted_image_name, 101, stdin);
-                encrypted_image_name[strlen(encrypted_image_name)-1] = '\0';
+            printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
+            fgets(encrypted_image_name, 101, stdin);
+            encrypted_image_name[strlen(encrypted_image_name) - 1] = '\0';
 
-                printf("\nName of the file which contains the secret key(perhaps secret_key.txt): ");
-                fgets(secret_key_file_name, 101, stdin);
-                secret_key_file_name[strlen(secret_key_file_name)-1] = '\0';
+            printf("\nName of the file which contains the secret key(perhaps secret_key.txt): ");
+            fgets(secret_key_file_name, 101, stdin);
+            secret_key_file_name[strlen(secret_key_file_name) - 1] = '\0';
 
-                int encryption_result = encrypt(input_image_name, encrypted_image_name, secret_key_file_name);
-                if (encryption_result == -1) return -1;
-                if (encryption_result == 1) printf("The image was succesfully encrypted.\n");
+            int encryption_result = encrypt(input_image_name, encrypted_image_name, secret_key_file_name);
+            if (encryption_result == -1)
+                return -1;
+            if (encryption_result == 1)
+                printf("The image was succesfully encrypted.\n");
 
-                break;
-            case 2:
-                printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
-                fgets(encrypted_image_name, 101, stdin);
-                encrypted_image_name[strlen(encrypted_image_name)-1] = '\0';
-                
-                printf("\nName of the file which contains the secret key(perhaps secret_key.txt): ");
-                fgets(secret_key_file_name, 101, stdin);
-                secret_key_file_name[strlen(secret_key_file_name)-1] = '\0';
+            break;
+        case 2:
+            printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
+            fgets(encrypted_image_name, 101, stdin);
+            encrypted_image_name[strlen(encrypted_image_name) - 1] = '\0';
 
-                printf("The name of the decrypted image is 'decodedpeppers.bmp'\n");
-                int decryption_result = decrypt(encrypted_image_name, decrypted_image_name, secret_key_file_name);
-                if (decryption_result == -1) return -1;
-                if (decryption_result == 1) printf("The image was succesfully decrypted.\n");
+            printf("\nName of the file which contains the secret key(perhaps secret_key.txt): ");
+            fgets(secret_key_file_name, 101, stdin);
+            secret_key_file_name[strlen(secret_key_file_name) - 1] = '\0';
 
-                break;
-            case 3:
-                printf("Name of the image that you want to encrypt(perhaps peppers.bmp): ");
-                fgets(input_image_name, 101, stdin);
-                input_image_name[strlen(input_image_name)-1] = '\0';
+            printf("The name of the decrypted image is 'decodedpeppers.bmp'\n");
+            int decryption_result = decrypt(encrypted_image_name, decrypted_image_name, secret_key_file_name);
+            if (decryption_result == -1)
+                return -1;
+            if (decryption_result == 1)
+                printf("The image was succesfully decrypted.\n");
 
-                printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
-                fgets(encrypted_image_name, 101, stdin);
-                encrypted_image_name[strlen(encrypted_image_name)-1] = '\0';
+            break;
+        case 3:
+            printf("Name of the image that you want to encrypt(perhaps peppers.bmp): ");
+            fgets(input_image_name, 101, stdin);
+            input_image_name[strlen(input_image_name) - 1] = '\0';
 
-                int input_image_result = chi_squared_test(input_image_name);
-                int encrypted_image_result = chi_squared_test(encrypted_image_name);
-                if(input_image_result == -1 || encrypted_image_result == -1) return -1;
-                if(input_image_result == 1 && encrypted_image_result == 1) printf("Chi-squared tests were succesfully done!\n");
+            printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
+            fgets(encrypted_image_name, 101, stdin);
+            encrypted_image_name[strlen(encrypted_image_name) - 1] = '\0';
 
-                break;
-            case 4:
-                EXIT_STATUS_FLAG = true;
-                printf("Program closed succesfully!\nBye!\n");
-                break;
-            default:
-                printf("The program needs a valid option!(1-encrypt, 2-decrypt, 3-chi_squared_test\n");
+            int input_image_result = chi_squared_test(input_image_name);
+            int encrypted_image_result = chi_squared_test(encrypted_image_name);
+            if (input_image_result == -1 || encrypted_image_result == -1)
+                continue;
+            if (input_image_result == 1 && encrypted_image_result == 1)
+                printf("Chi-squared tests were succesfully done!\n");
+
+            break;
+        case 4:
+            EXIT_STATUS_FLAG = true;
+            printf("Program closed succesfully!\nBye!\n");
+            break;
+        default:
+            printf("Please choose a valid option!\n");
         }
     }
-	
+
     return 0;
 }
