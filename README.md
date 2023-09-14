@@ -6,10 +6,10 @@ The program from [crypto.c](crypto.c) has the following features:
 - encrypt and decrypt an image, using a secret key(composed of two values)
 - show the results of the CHI-SQUARED test of the plain image and encrypted image
 - show instructions of how to use the program
-## Compiling
-For the compilation the gcc compiler was used as follows:
+## Building
+To build on windows use:
 ```
-gcc crypto.c -o crypto
+gcc -std=c99 crypto.c -o crypto
 ```
 ## Results
 <p align="center">
