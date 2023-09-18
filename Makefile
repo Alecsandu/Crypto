@@ -1,6 +1,5 @@
 CC = gcc
-
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -std=c99
 
 INSTALLDIR = build
 
@@ -16,7 +15,7 @@ $(ODIR)/$(OUTPUTFILE): $(OUTPUTFILE).c
 .PHONY: install
 install: 
 	mkdir -p $(INSTALLDIR)
-	cp -p $(OUTPUTFILE) $(INSTALLDIR)
+	mv $(OUTPUTFILE) $(INSTALLDIR)
 
 # Clean target
 .PHONY: clean
