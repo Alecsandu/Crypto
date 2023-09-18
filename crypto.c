@@ -236,6 +236,11 @@ int encrypt(char *input_image_name, char *output_image_name, char *secret_key_fi
 
     fclose(input_image_file_handle);
     fclose(output_image_file_handle);
+
+#ifdef CRYPTO_TEST
+    printf("Encryption passed\r\n");
+#endif
+
     return 1;
 }
 
@@ -396,7 +401,8 @@ int chi_squared_test(char *image_name)
     return 1;
 }
 
-int main()
+#ifndef CRYPTO_TEST
+int main(void)
 {
     int user_choice = 0;
     bool EXIT_STATUS_FLAG = false;
@@ -492,3 +498,4 @@ int main()
 
     return 0;
 }
+#endif

@@ -7,7 +7,7 @@ The program from [crypto.c](crypto.c) has the following features:
 - show the results of the CHI-SQUARED test of the plain image and encrypted image
 - show instructions of how to use the program
 ## Building
-To build on windows use:
+To build use:
 ```
 gcc -std=c99 crypto.c -o crypto
 ```

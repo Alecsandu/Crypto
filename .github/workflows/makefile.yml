@@ -14,5 +14,8 @@ jobs:
     - name: checkout repo
       uses: actions/checkout@v3
 
-    - name: Install dependencies
+    - name: Compile program
       run: make
+
+    - name: Run tests
+      run: make run_tests
