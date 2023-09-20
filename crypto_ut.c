@@ -6,15 +6,22 @@ int tests_run = 0;
 
 int foo = 7;
 
-static char* test_foo() 
+static char* test_encryption() 
 {
     mu_assert("error, foo != 7", encrypt("peppers.bmp", "encodedpeppers.bmp", "secret_key.txt") == 1);
     return 0;
 }
 
+static char* test_decryption() 
+{
+    mu_assert("error, foo != 7", decrypt("encodedpeppers.bmp", "decodedpeppers.bmp", "secret_key.txt") == 1);
+    return 0;
+}
+
 static char* all_tests() 
 {
-    mu_run_test(test_foo);
+    mu_run_test(test_encryption);
+    mu_run_test(test_decryption);
     return 0;
 }
 
