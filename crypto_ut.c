@@ -4,21 +4,21 @@
 
 int tests_run = 0;
 
-int foo = 7;
-
 static char* test_encryption() 
 {
-    mu_assert("error, foo != 7", encrypt("peppers.bmp", "encodedpeppers.bmp", "secret_key.txt") == 1);
+    int encryption_return_flag = encrypt("peppers.bmp", "encodedpeppers.bmp", "secret_key.txt");
+    mu_assert("ERROR, encryption failed\n", encryption_return_flag == 1);
     return 0;
 }
 
 static char* test_decryption() 
 {
-    mu_assert("error, foo != 7", decrypt("encodedpeppers.bmp", "decodedpeppers.bmp", "secret_key.txt") == 1);
+    int decryption_return_flag = decrypt("encodedpeppers.bmp", "decodedpeppers.bmp", "secret_key.txt");
+    mu_assert("ERROR, decryption failed\n", decryption_return_flag == 1);
     return 0;
 }
 
-static char* all_tests() 
+static char* run_all_tests() 
 {
     mu_run_test(test_encryption);
     mu_run_test(test_decryption);
@@ -27,7 +27,7 @@ static char* all_tests()
 
 int main(void) 
 {
-    char *result = all_tests();
+    char *result = run_all_tests();
 
     if (result != 0) 
     {

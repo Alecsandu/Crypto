@@ -20,7 +20,7 @@ gcc -std=c99 crypto.c -o crypto
 </p>
 
 <p align="center">
-  <img src="https://github.com/Alecsandu/CryptographyApp/blob/main/encodedpeppers.bmp">
+  <img src="https://github.com/Alecsandu/CryptographyApp/blob/main/examples/encodedpeppers.bmp">
   <br />
   Encrypted image
 </p>

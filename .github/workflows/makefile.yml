@@ -14,8 +14,11 @@ jobs:
     - name: checkout repo
       uses: actions/checkout@v3
 
-    - name: Compile program
-      run: make
+    - name: Compile program and create build folder
+      run: make install
 
-    - name: Run tests
+    - name: Compile and run tests
       run: make run_tests
+
+    - name: Clean generated files and directories
+      run: make clean 

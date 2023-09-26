@@ -237,10 +237,6 @@ int encrypt(char *input_image_name, char *output_image_name, char *secret_key_fi
     fclose(input_image_file_handle);
     fclose(output_image_file_handle);
 
-#ifdef CRYPTO_TEST
-    printf("Encryption passed\r\n");
-#endif
-
     return 1;
 }
 
@@ -332,6 +328,7 @@ int decrypt(char *encrypted_image_name, char *decrypted_image_name, char *secret
 
     fclose(input_image_file_handle);
     fclose(output_image_file_handle);
+
     return 1;
 }
 
