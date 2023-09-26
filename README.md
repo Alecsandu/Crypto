@@ -1,6 +1,6 @@
 # Encrypto - CryptographyApp
 ## Idea
-Encrypt and decrypt your photos using a private key, to be sure that no one sees your peppers
+Encrypt and decrypt your photos using a private key, to *make* that no one sees your peppers.
 ## Features
 The program from [crypto.c](crypto.c) has the following features:
 - encrypt and decrypt an image, using a secret key(composed of two values)
@@ -9,7 +9,7 @@ The program from [crypto.c](crypto.c) has the following features:
 ## Building
 To build use:
 ```
-gcc -std=c99 crypto.c -o crypto
+make install
 ```
 ## Results
 <p align="center">
