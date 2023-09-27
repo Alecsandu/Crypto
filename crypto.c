@@ -165,8 +165,8 @@ int encrypt(char *input_image_name, char *output_image_name, char *secret_key_fi
         return -1;
     }
     unsigned int generator_seed = 0, starting_value = 0;
-    fscanf(secret_key_file_handle, "%d", &generator_seed);
-    fscanf(secret_key_file_handle, "%d", &starting_value);
+    fscanf(secret_key_file_handle, "%u", &generator_seed);
+    fscanf(secret_key_file_handle, "%u", &starting_value);
     fclose(secret_key_file_handle);
 
     input_image_file_handle = fopen(input_image_name, "rb+");
@@ -261,13 +261,13 @@ int decrypt(char *encrypted_image_name, char *decrypted_image_name, char *secret
 
     if (secret_key_file_handle == NULL)
     {
-        printf("Error at file open!\nCheck if you correctly spelled its name, or if it is present in the same directory as the executable file.");
+        printf("Error at file open!\nCheck if you correctly spelled its name, or if it is present in the same directory as the executable file.\n");
         return -1;
     }
 
     unsigned int generator_seed = 0, starting_value = 0;
-    fscanf(secret_key_file_handle, "%d", &generator_seed);
-    fscanf(secret_key_file_handle, "%d", &starting_value);
+    fscanf(secret_key_file_handle, "%u", &generator_seed);
+    fscanf(secret_key_file_handle, "%u", &starting_value);
     fclose(secret_key_file_handle);
 
     unsigned int image_size = 0, image_width = 0, image_height = 0;
@@ -406,7 +406,7 @@ int main(void)
 
     while (!EXIT_STATUS_FLAG)
     {
-        printf("Operation id(1 encryption, 2 decryption, 3 chi_squared test, 4 exit):");
+        printf("Operation id(1 encryption, 2 decryption, 3 chi_squared test, 4 exit):\n");
 
         char input_image_name[101];
         char encrypted_image_name[101];
@@ -421,8 +421,7 @@ int main(void)
         }
         if (operation_result == 0)
         {
-            while (fgetc(stdin) != '\n')
-                ;
+            while (fgetc(stdin) != '\n');
             printf("The program needs a valid option!\n");
             continue;
         }
@@ -431,15 +430,15 @@ int main(void)
         switch (user_choice)
         {
         case 1:
-            printf("Name of the image that you want to encrypt(perhaps peppers.bmp): ");
+            printf("Name of the image that you want to encrypt(perhaps peppers.bmp):\n");
             fgets(input_image_name, 101, stdin);
             input_image_name[strlen(input_image_name) - 1] = '\0';
 
-            printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
+            printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp):\n");
             fgets(encrypted_image_name, 101, stdin);
             encrypted_image_name[strlen(encrypted_image_name) - 1] = '\0';
 
-            printf("\nName of the file which contains the secret key(perhaps secret_key.txt): ");
+            printf("\nName of the file which contains the secret key(perhaps secret_key.txt):\n");
             fgets(secret_key_file_name, 101, stdin);
             secret_key_file_name[strlen(secret_key_file_name) - 1] = '\0';
 
@@ -451,11 +450,11 @@ int main(void)
 
             break;
         case 2:
-            printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
+            printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp):\n");
             fgets(encrypted_image_name, 101, stdin);
             encrypted_image_name[strlen(encrypted_image_name) - 1] = '\0';
 
-            printf("\nName of the file which contains the secret key(perhaps secret_key.txt): ");
+            printf("\nName of the file which contains the secret key(perhaps secret_key.txt):\n");
             fgets(secret_key_file_name, 101, stdin);
             secret_key_file_name[strlen(secret_key_file_name) - 1] = '\0';
 
@@ -468,11 +467,11 @@ int main(void)
 
             break;
         case 3:
-            printf("Name of the image that you want to encrypt(perhaps peppers.bmp): ");
+            printf("Name of the first image to do the test(perhaps peppers.bmp):\n");
             fgets(input_image_name, 101, stdin);
             input_image_name[strlen(input_image_name) - 1] = '\0';
 
-            printf("\nName of the new encrypted image(perhaps encodedpeppers.bmp): ");
+            printf("\nName of the second image to do the test(perhaps encodedpeppers.bmp):\n");
             fgets(encrypted_image_name, 101, stdin);
             encrypted_image_name[strlen(encrypted_image_name) - 1] = '\0';
 

@@ -1,41 +1,38 @@
 CC = gcc
-CFLAGS = -g -Wall -std=c99
+CFLAGS = -Wall -Wextra -std=c17 -pedantic
 
-INSTALLDIR = build
+BUILD_DIR = build
 
 OUTPUTFILE = crypto
 OUTPUT_TEST_FILE = crypto_ut
 ENCRYPTED_IMAGE_NAME = encodedpeppers.bmp
 DECRYPTED_IMAGE_NAME = decodedpeppers.bmp
 
+.PHONY: all clean install build_tests run_tests
+
 # Compile & create build folder
-.PHONY: all
 all: $(OUTPUTFILE)
 $(OUTPUTFILE): $(OUTPUTFILE).c
 	$(CC) $(CFLAGS) -o $(OUTPUTFILE) $(OUTPUTFILE).c
 
-.PHONY: install
 install: all
-	mkdir -p $(INSTALLDIR)
-	cp -p $(OUTPUTFILE) $(INSTALLDIR)
+	mkdir -p $(BUILD_DIR)
+	cp -p $(OUTPUTFILE) $(BUILD_DIR)
 
 
 # Compile & run tests
-.PHONY: build_tests
 build_tests: $(OUTPUT_TEST_FILE)
 $(OUTPUT_TEST_FILE): $(OUTPUT_TEST_FILE).c
 	$(CC) $(CFLAGS) -o $(OUTPUT_TEST_FILE) $(OUTPUT_TEST_FILE).c
 
-.PHONY: run_tests
 run_tests: build_tests
 	./$(OUTPUT_TEST_FILE)
 
 
 # Clean generated files and directories
-.PHONY: clean
 clean:
-	$(RM) -f $(OUTPUTFILE) $(INSTALLDIR)/$(OUTPUTFILE)
-	$(RM) -f $(OUTPUT_TEST_FILE) $(INSTALLDIR)/$(OUTPUT_TEST_FILE)
-	${RM} -rf $(INSTALLDIR)/
+	$(RM) -f $(OUTPUTFILE) $(BUILD_DIR)/$(OUTPUTFILE)
+	$(RM) -f $(OUTPUT_TEST_FILE) $(BUILD_DIR)/$(OUTPUT_TEST_FILE)
+	${RM} -rf $(BUILD_DIR)/
 	${RM} -f $(ENCRYPTED_IMAGE_NAME)
 	${RM} -f $(DECRYPTED_IMAGE_NAME)
