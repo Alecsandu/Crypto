@@ -54,3 +54,6 @@ dkms.conf
 # Folders
 Defaults/
 build/
+
+# To avoid adding again generated images
+*.bmp
