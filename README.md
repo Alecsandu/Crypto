@@ -11,6 +11,8 @@ To build use:
 ```
 make install
 ```
+More details on GNU make [here](https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html).
+
 ## Results
 <p align="center">
   <img src="https://github.com/Alecsandu/CryptographyApp/blob/main/peppers.bmp">
